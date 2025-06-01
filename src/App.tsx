@@ -2,9 +2,11 @@ import DojoTimeline from './components/DojoTimeline';
 
 export default function App() {
   return (
-    <div className="flex h-screen w-screen flex-col items-center justify-start bg-gray-50">
-      <h1 className="mt-4 text-2xl font-semibold">Dojo: 5-Year Interactive Timeline</h1>
-      <div className="mt-6 w-full px-4">
+    <div className="h-screen w-screen bg-black text-white flex flex-col">
+      <header className="p-6">
+        <h1 className="text-3xl font-bold text-white">Dojo</h1>
+      </header>
+      <div className="flex-1 px-6 pb-6">
         <DojoTimeline />
       </div>
     </div>

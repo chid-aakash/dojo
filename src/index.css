@@ -7,9 +7,9 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
+  color-scheme: dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #000000;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -28,10 +28,10 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: #000000;
+  color: #ffffff;
 }
 
 h1 {
@@ -58,19 +58,53 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
-
 /* Timeline styles */
 .vis-item.plan   { background: #3182ce80; border-color: #3182ce; }
 .vis-item.actual { background: #38a16980; border-color: #38a169; }
+
+/* Dark theme for vis-timeline */
+.vis-timeline {
+  background-color: #111111 !important;
+  border-color: #333333 !important;
+}
+
+.vis-panel {
+  background-color: #111111 !important;
+  border-color: #333333 !important;
+}
+
+.vis-labelset .vis-label {
+  background-color: #111111 !important;
+  color: #ffffff !important;
+  border-color: #333333 !important;
+}
+
+.vis-time-axis {
+  background-color: #111111 !important;
+  border-color: #333333 !important;
+}
+
+.vis-time-axis .vis-text {
+  color: #ffffff !important;
+}
+
+.vis-time-axis .vis-text.vis-major {
+  color: #ffffff !important;
+  font-weight: bold;
+}
+
+.vis-time-axis .vis-text.vis-minor {
+  color: #cccccc !important;
+}
+
+.vis-time-axis .vis-grid.vis-minor {
+  border-color: #222222 !important;
+}
+
+.vis-time-axis .vis-grid.vis-major {
+  border-color: #444444 !important;
+}
+
+.vis-current-time {
+  background-color: #ff0000 !important;
+}

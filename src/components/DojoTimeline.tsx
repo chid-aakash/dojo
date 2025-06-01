@@ -7,7 +7,15 @@ import { attachZoomShortcuts } from '../hooks/useZoom';
 
 export default function DojoTimeline() {
   const container = useRef<HTMLDivElement>(null);
+  const timelineRef = useRef<Timeline | null>(null);
   const { items } = useTimeline();
+
+  const goToCurrentTime = () => {
+    if (timelineRef.current) {
+      const now = new Date();
+      timelineRef.current.moveTo(now);
+    }
+  };
 
   useEffect(() => {
     if (!container.current) return;
@@ -29,8 +37,11 @@ export default function DojoTimeline() {
     );
 
     const timeline = new Timeline(container.current, ds, {
-      start: '2025-01-01',    // Changed to January 2025
-      end: '2031-01-01',      // Changed to January 2031
+      // Strict date range: 2025-2030 only
+      start: '2025-01-01',
+      end: '2030-12-31',
+      min: '2025-01-01',      // Prevent going before 2025
+      max: '2030-12-31',      // Prevent going after 2030
       
       // Enable horizontal scrolling/panning
       moveable: true,
@@ -85,23 +96,59 @@ export default function DojoTimeline() {
       // Orientation
       orientation: 'top',
       
-      // Mouse wheel behavior
+      // Mouse wheel behavior - horizontal scroll for panning, vertical for zooming
       horizontalScroll: true,
-      verticalScroll: false
+      verticalScroll: false,
+      zoomKey: 'altKey'  // Hold Alt for zoom, otherwise pan
     });
+
+    // Store timeline reference
+    timelineRef.current = timeline;
+
+    // Custom mouse wheel handling for better trackpad support
+    container.current.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      
+      // Horizontal scroll (shift+wheel or trackpad horizontal gesture)
+      if (event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+        // Pan left/right
+        const range = timeline.getWindow();
+        const interval = range.end.getTime() - range.start.getTime();
+        const moveBy = interval * (event.deltaX > 0 ? 0.1 : -0.1);
+        
+        const newStart = new Date(range.start.getTime() + moveBy);
+        const newEnd = new Date(range.end.getTime() + moveBy);
+        
+        timeline.setWindow(newStart, newEnd);
+      } else {
+        // Vertical scroll - zoom in/out
+        if (event.deltaY > 0) {
+          timeline.zoomOut(0.1);
+        } else {
+          timeline.zoomIn(0.1);
+        }
+      }
+    }, { passive: false });
 
     attachZoomShortcuts(timeline);
 
-    return () => timeline.destroy();
+    return () => {
+      timelineRef.current = null;
+      timeline.destroy();
+    };
   }, [items]);
 
   return (
-    <div className="w-full">
-      <div className="mb-4 text-sm text-gray-600">
-        <p>📌 <strong>Navigation:</strong> Drag to pan left/right • Mouse wheel to zoom • Cmd+/- for keyboard zoom</p>
-        <p>✨ <strong>Add Events:</strong> Double-click anywhere on the timeline to create new events</p>
-      </div>
-      <div ref={container} className="h-[80vh] w-full border border-gray-300 rounded-lg" />
+    <div className="w-full h-full relative">
+      {/* Go to Current Time Button */}
+      <button
+        onClick={goToCurrentTime}
+        className="absolute top-4 right-4 z-10 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg transition-colors"
+      >
+        Go to Now
+      </button>
+      
+      <div ref={container} className="h-full w-full" />
     </div>
   );
 } 
