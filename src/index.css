@@ -1,15 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Fira Code', 'Courier New', monospace;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #000000;
+  background-color: #000000; /* Changed to full black */
+  color: #e0e0e0; /* Slightly brighter default text */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -19,183 +21,402 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: #58a6ff; 
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: #3081f7; 
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #000000;
-  color: #ffffff;
+  background-color: #000000; /* Changed to full black */
+  color: #e0e0e0; /* Match root default text */
+  font-family: 'Fira Code', 'Courier New', monospace; 
 }
 
 h1 {
-  font-size: 3.2em;
+  font-size: 2.8em; 
   line-height: 1.1;
+  color: #00c2ff; /* Brighter, more vibrant blue for title */
+  font-weight: bold;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
+  border-radius: 4px; /* Sharper radius */
+  border: 1px solid #444; /* Slightly lighter border for pure black */
   padding: 0.6em 1.2em;
-  font-size: 1em;
+  font-size: 0.9em; 
   font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  font-family: inherit; 
+  background-color: #1a1a1a; /* Darker button background */
+  color: #c9d1d9; 
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: border-color 0.25s, background-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: #666; 
+  background-color: #2a2a2a;
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 4px auto #58a6ff; 
+  outline-offset: 1px;
 }
 
-/* Timeline styles */
-.vis-item.plan   { background: #3182ce80; border-color: #3182ce; }
-.vis-item.actual { background: #38a16980; border-color: #38a169; }
+/* Timeline styles - Adjusted for codey theme */
+.vis-item {
+  border-width: 1px;
+  font-size: 12px; /* Slightly larger item font size */
+}
 
-/* Dark theme for vis-timeline */
+.vis-item.plan {
+  background: rgba(56, 139, 253, 0.4); /* Slightly more transparent background */
+  border-color: #58a6ff;
+  color: #ffffff; /* Bright white text for plan items */
+}
+.vis-item.actual {
+  background: rgba(35, 134, 54, 0.4); /* Slightly more transparent background */
+  border-color: #3fb950;
+  color: #ffffff; /* Bright white text for actual items */
+}
+
+/* Additional item type styling for more color */
+.vis-item.milestone {
+  background-color: rgba(165, 55, 253, 0.5); 
+  border-color: #a537fd;
+  color: #f5e6ff; /* Lighter purple text */
+}
+
+.vis-item.task {
+  background-color: rgba(253, 186, 56, 0.5); 
+  border-color: #fdba38;
+  color: #fff5e1; /* Very light yellow/orange text */
+}
+
+.vis-item.reminder {
+  background-color: rgba(239, 68, 68, 0.5); 
+  border-color: #ef4444;
+  color: #ffe8e8; /* Very light red text */
+}
+
+/* Style for date text within items, if possible (might need JS) */
+.vis-item .vis-item-content .item-date {
+  font-weight: bold;
+  color: #a6e22e; /* Bright lime green for dates */
+  display: block;
+  font-size: 0.9em;
+}
+
+.vis-item .vis-item-content .item-title {
+  /* Existing title styling, or default */
+}
+
+/* Dark theme for vis-timeline - Adjusted for codey theme on full black */
 .vis-timeline {
-  background-color: #111111 !important;
-  border-color: #333333 !important;
-  font-family: inherit;
+  background-color: #080808 !important; /* Very dark grey, not pure black for slight depth */
+  border: 1px solid #333 !important; /* Darker border */
+  font-family: 'Fira Code', 'Courier New', monospace !important;
 }
 
 .vis-panel {
-  background-color: #111111 !important;
-  border-color: #333333 !important;
+  background-color: #080808 !important;
+  border-color: #333 !important;
 }
 
 .vis-labelset .vis-label {
-  background-color: #111111 !important;
-  color: #ffffff !important;
-  border-color: #333333 !important;
+  background-color: #080808 !important;
+  color: #b0b0b0 !important; /* Slightly dimmer labels */
+  border-color: #333 !important;
+  font-family: 'Fira Code', 'Courier New', monospace !important;
 }
 
 .vis-time-axis {
-  background-color: #111111 !important;
-  border-color: #333333 !important;
+  background-color: #080808 !important;
+  border-color: #333 !important;
+  font-family: 'Fira Code', 'Courier New', monospace !important;
 }
 
 .vis-time-axis .vis-text {
-  color: #ffffff !important;
+  color: #b0b0b0 !important; /* Brighter axis text as previous #888 was too dim */
+  font-family: 'Fira Code', 'Courier New', monospace !important;
 }
 
 .vis-time-axis .vis-text.vis-major {
-  color: #ffffff !important;
-  font-weight: bold;
+  color: #d0d0d0 !important; /* Even brighter for major ticks */
+  font-weight: 500; 
 }
 
 .vis-time-axis .vis-text.vis-minor {
-  color: #cccccc !important;
+  color: #888 !important;
 }
 
 .vis-time-axis .vis-grid.vis-minor {
-  border-color: #222222 !important;
+  border-color: #222 !important; /* Very subtle minor grid lines */
 }
 
 .vis-time-axis .vis-grid.vis-major {
-  border-color: #444444 !important;
+  border-color: #444 !important; /* Subtle major grid lines */
 }
 
 .vis-current-time {
-  background-color: #ff0000 !important;
+  background-color: #ff6600 !important; /* Bright orange for current time */
 }
 
-/* Timeline Timeline Enhancements */
-.vis-timeline {
-  font-family: inherit;
+/* Timeline Enhancements - Adjusted for codey theme */
+
+.vis-timeline .vis-time-axis .vis-text {
+  font-size: 0.85rem; /* Increased base font size for timeline text */
+  color: #c0c0c0; /* Brighter base text color for better visibility */
 }
 
-/* Enhanced visibility for week labels (Level 3) */
-.vis-timeline .vis-time-axis .vis-text.vis-minor {
-  font-weight: 600;
-  padding: 4px 8px;
+.vis-timeline .vis-time-axis .vis-text.vis-minor { 
+  font-weight: 500;
+  padding: 2px 4px;
+  font-size: 0.75rem; /* Slightly increased */
+  color: #a0a0a0; /* Brighter minor labels */
 }
 
-/* Add visual separation for week boundaries in Level 4 */
 .vis-timeline .vis-time-axis .vis-text.vis-major {
-  background-color: #1a1a1a;
-  color: #3182ce;
-  font-weight: bold;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-top: 2px;
+  background-color: #111; /* Darker offset background */
+  color: #6CB6FF; /* Brighter blue for major labels */
+  font-weight: 700;
+  padding: 3px 7px; /* Increased padding */
+  border-radius: 3px;
+  margin-top: 1px;
+  font-size: 0.85rem; /* Increased major label font size */
 }
 
-/* Enhanced week grid lines */
 .vis-timeline .vis-grid.vis-vertical.vis-week,
 .vis-timeline .vis-grid.vis-vertical.vis-major {
-  border-left: 2px solid #3182ce;
-  opacity: 0.6;
+  border-left: 1px solid rgba(88, 166, 255, 0.2); /* Thinner, less opaque accent */
+  opacity: 0.8;
 }
 
-/* Better visibility for minor grid lines */
 .vis-timeline .vis-grid.vis-vertical.vis-minor {
-  border-left: 1px solid #333333;
-  opacity: 0.5;
+  border-left: 1px solid rgba(51, 51, 51, 0.5); /* Darker, less opaque */
+  opacity: 0.7;
 }
 
-/* Enhanced styling for week boundaries in Level 4 */
-.vis-timeline .vis-time-axis .vis-text.vis-major {
-  background-color: #1f2937;
-  color: #60a5fa;
-  font-weight: bold;
-  padding: 4px 8px;
-  border-radius: 6px;
-  margin-top: 4px;
-  border: 1px solid #3730a3;
-  font-size: 0.75rem;
-}
 
-/* Week number styling in Level 3 */
 .vis-timeline .vis-time-axis .vis-text.vis-week {
   position: relative;
-  background-color: #1f2937;
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid #374151;
-  font-size: 0.875rem;
-  color: #e5e7eb;
+  background-color: #1a1a1a; 
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #333;
+  font-size: 0.8rem;
+  color: #888; 
 }
 
-/* Stronger visual separation for week boundaries */
 .vis-timeline .vis-grid.vis-vertical[style*="Monday"],
 .vis-timeline .vis-grid.vis-vertical.vis-week {
-  border-left: 3px solid #3b82f6 !important;
-  opacity: 0.8 !important;
+  border-left: 2px solid rgba(88, 166, 255, 0.3) !important; /* Less opaque accent */
+  opacity: 0.9 !important;
 }
 
-/* Enhanced day labels in Level 4 */
 .vis-timeline .vis-time-axis .vis-text.vis-minor {
-  font-weight: 600;
-  padding: 4px 8px;
-  color: #f3f4f6;
+  font-weight: normal;
+  padding: 2px 4px;
+  color: #888; 
+  font-size: 0.7rem;
 }
 
-/* Improved tooltip styling for week information */
 .vis-timeline .vis-time-axis .vis-text.vis-week::after {
   content: attr(title);
   position: absolute;
   bottom: -20px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.75rem;
-  color: #9ca3af;
+  font-size: 0.7rem;
+  color: #888; 
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s;
+  background-color: #080808; 
+  padding: 2px 4px;
+  border-radius: 3px;
+  border: 1px solid #333;
 }
 
 .vis-timeline .vis-time-axis .vis-text.vis-week:hover::after {
   opacity: 1;
+}
+
+.vis-text, .vis-item-content, .vis-item, .vis-label, .vis-labelset, .vis-legend, .vis-tooltip {
+    font-family: 'Fira Code', 'Courier New', monospace !important;
+}
+
+/* Scrollbars for pure black theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #111; /* Dark track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444; /* Scroller color */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #58a6ff; /* Accent on hover */
+}
+
+/* Animation for RetroGrid */
+@keyframes gridScroll {
+  0% { background-position: 0 0; }
+  100% { background-position: 60px 60px; }
+}
+
+.animate-grid-scroll {
+  animation: gridScroll 3s linear infinite;
+}
+
+/* Hide vis-timeline specific helper/title text if it becomes an issue */
+.vis-panel.vis-center > .vis-content > [title="Scroll to zoom, drag to pan"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Hide vis-timeline specific helper/title text */
+/* This targets the element that often shows zoom/pan hints or level information */
+.vis-timeline .vis-panel.vis-center > .vis-content > .vis-label.vis-nesting-group.vis-group-level-1,
+.vis-timeline .vis-panel.vis-center > .vis-content > div[title*="Use mouse wheel"],
+.vis-timeline .vis-panel.vis-center > .vis-content > div[title*="Cmd+/-"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%; /* Default light mode background (white) */
+    --foreground: 0 0% 3.9%; /* Default light mode text (near black) */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    /* Overriding for full black theme */
+    --background: 0 0% 0%;             /* HSL for black */
+    --foreground: 0 0% 80%;           /* Lighter gray text for contrast on black */
+    --card: 0 0% 5%;                 /* Very dark gray for cards, slightly off-black */
+    --card-foreground: 0 0% 80%;      /* Text on cards */
+    --popover: 0 0% 5%;              /* Very dark gray for popovers */
+    --popover-foreground: 0 0% 80%;   /* Text on popovers */
+    
+    --primary: 0 0% 80%;             /* Primary interactive elements text color */
+    --primary-foreground: 0 0% 0%;    /* Text on primary interactive elements (e.g., button text on primary button) */
+    
+    --secondary: 0 0% 10%;           /* Secondary elements background */
+    --secondary-foreground: 0 0% 80%; /* Text for secondary elements */
+    
+    --muted: 0 0% 10%;              /* Muted elements background */
+    --muted-foreground: 0 0% 50%;     /* Muted text (dimmer) */
+    
+    --accent: 0 0% 15%;              /* Accent background (e.g., hover states) */
+    --accent-foreground: 0 0% 90%;    /* Accent text */
+    
+    --destructive: 0 70% 45%;         /* Destructive actions (e.g., delete button) - a dark red */
+    --destructive-foreground: 0 0% 90%;/* Text on destructive actions */
+    
+    --border: 0 0% 15%;              /* Borders - dark gray */
+    --input: 0 0% 10%;               /* Input fields background - very dark gray */
+    --ring: 0 70% 55%;                /* Focus ring - could be a brighter accent like a blue/orange */
+
+    /* Chart colors can remain or be adjusted for dark theme */
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Ensuring the "Go to Now" button also adheres to the dark theme */
+.vis-timeline .vis-navigation .vis-button.vis-go-to-now {
+  background-color: #1a1a1a !important; /* Darker button background */
+  color: #c9d1d9 !important;
+  border: 1px solid #444 !important; /* Slightly lighter border for pure black */
+  border-radius: 4px !important;
+  padding: 0.5em 1em !important;
+  font-family: 'Fira Code', 'Courier New', monospace !important;
+}
+
+.vis-timeline .vis-navigation .vis-button.vis-go-to-now:hover {
+  background-color: #2a2a2a !important;
+  border-color: #666 !important;
+}
+
+/* Item styling for better visibility */
+.vis-item {
+  border-color: #58a6ff; /* Blue border for all items */
+  background-color: #1A2A3A; /* Dark blueish background for items */
+  color: #E0E0E0; /* Bright text color for items */
+  font-size: 0.9rem; /* Larger font size for item content */
+  padding: 5px;
+}
+
+.vis-item.vis-selected {
+  border-color: #FFD700; /* Gold border for selected items */
+  background-color: #2A3A4A; /* Slightly lighter background for selected items */
+}
+
+.vis-item .vis-item-content {
+  padding: 5px;
+  color: #6CB6FF !important; /* Changed to Codey Blue for better visibility as requested */
+}
+
+/* Specific status colors - make them more vibrant */
+.vis-item.plan {
+  background-color: #005A9C; /* Vibrant Blue for plan items */
+  border-color: #3B9CFF;
+  color: #FFFFFF; 
+}
+
+.vis-item.actual {
+  background-color: #007A7A; /* Vibrant Teal for actual items */
+  border-color: #00FFFF;
+  color: #FFFFFF;
+}
+
+.vis-item.plan .vis-item-content,
+.vis-item.actual .vis-item-content {
+    color: #FFFFFF !important; /* White text for plan and actual items */
 }

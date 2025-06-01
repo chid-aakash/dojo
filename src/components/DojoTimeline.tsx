@@ -434,7 +434,6 @@ export default function DojoTimeline() {
         {/* Simple Zoom Level Display (Slider Commented Out) */}
         <div className="text-sm text-gray-400">
           <span className="font-medium">Level {currentZoomIndex + 1}: {ZOOM_LEVELS[currentZoomIndex].name}</span>
-          <span className="ml-2 text-xs">(Use mouse wheel or Cmd+/- to zoom)</span>
         </div>
 
         {/* Commented out slider for now
