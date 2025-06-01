@@ -1,0 +1,51 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Dojo: A Comprehensive Life Management Application
+Overview
+Dojo is a cutting-edge life management application designed to empower users to achieve their long-term goals through structured planning, AI-assisted insights, and meticulous progress tracking. At its core, Dojo serves as a personal command center, providing a holistic view of the user's life trajectory over a five-year period. By integrating advanced technologies with intuitive design, Dojo aims to revolutionize how individuals plan, execute, and reflect on their personal and professional aspirations.
+Whether you're aiming to advance your career, improve your health, or pursue personal passions, Dojo provides the tools to break down ambitious goals into actionable steps, track progress, and adapt plans dynamically with the help of artificial intelligence.
+Purpose and Vision
+We are building Dojo to be the ultimate companion for individuals committed to personal growth and long-term success. Our vision is to create a platform that not only organizes a user's life but also inspires and guides them through intelligent automation and an engaging user experience. Dojo is intended to bridge the gap between dreaming big and achieving tangible results, making it an indispensable tool for anyone looking to take control of their future.
+Key Features
+1. Interactive Timeline
+The heart of Dojo is its interactive timeline, a visual representation of the user's five-year plan:
+
+Time Span: Covers a fixed period from June 1, 2025, to June 1, 2030, providing a consistent framework for planning.
+Event Management: Users can add, edit, and delete events, milestones, and tasks directly on the timeline with a simple click or drag-and-drop action.
+Zoom Functionality: Allows users to zoom in to view detailed schedules down to 15-minute intervals or zoom out for a high-level overview of the entire five-year plan.
+Tooltips and Details: Hovering over events reveals quick details (e.g., title, date, status), while clicking opens a panel for deeper interaction (e.g., notes, subtasks).
+Plan vs. Actuals: Displays planned events in one color (e.g., blue) and actual progress in another (e.g., green), with options to log updates and visualize deviations over time.
+
+The timeline is designed to be both functional and visually appealing, helping users maintain focus on both short-term actions and long-term objectives.
+2. AI-Powered Assistance
+Dojo integrates artificial intelligence to enhance productivity and provide personalized guidance:
+
+Natural Language Processing (NLP): Users can interact with an AI assistant via text or voice, saying things like "Help me plan my career goals" or "Review my progress this month."
+Smart Planning: The AI interprets user input to generate structured timeline events, tasks, and reminders, such as breaking a goal like "Learn Python" into weekly coding sessions.
+Progress Analysis: The AI periodically reviews planned versus actual progress, offering insights like "You're ahead on fitness goals but behind on reading—here’s how to adjust."
+Diary and Reflection: The AI assists in writing journal entries (e.g., "Write about my day") and analyzes them to highlight patterns or suggest improvements.
+
+This AI component acts as a virtual coach, making Dojo a proactive tool rather than a passive organizer.
+3. Task and Habit Management
+Dojo provides robust tools to manage daily activities and build sustainable habits:
+
+Task Assignment and Delegation: Create tasks with due dates, priorities, and dependencies; assign them to yourself or others (in future collaborative versions).
+Habit Tracking: Monitor routines like "Exercise 30 minutes daily" with streak counters, progress graphs, and motivational nudges (e.g., "You’ve hit 5 days in a row!").
+Integration with Timeline: Tasks and habits sync with the timeline, ensuring alignment between daily efforts and long-term goals.
+
+This feature ensures that users stay on top of immediate responsibilities while keeping their bigger picture in sight.
+4. User Interface and Experience
+Dojo is designed to be intuitive and engaging:
+
+Intuitive Navigation: A clean, responsive interface with a sidebar for quick access to timeline, tasks, habits, and settings.
+Customizable Views: Users can adjust colors, layouts, and data density to match their preferences (e.g., minimalist vs. detailed views).
+Interactive Elements: Drag-and-drop events, smooth zooming with mouse wheel or pinch gestures, and pan controls for easy timeline navigation.
+Accessibility: Built with WCAG 2.1 standards in mind, ensuring usability for all, including screen reader support and keyboard navigation.
+
+
+Ultimately, Dojo aims to transform how people approach their futures, turning vague aspirations into concrete achievements.
+Conclusion
+Dojo is an ambitious project to redefine personal management for the digital age. By blending an interactive timeline, AI assistance, and a user-friendly interface, we’re building a tool that not only organizes lives but also inspires meaningful change. With a clear roadmap and a focus on user needs, Dojo is set to become a game-changer for anyone striving to live intentionally and achieve their dreams.

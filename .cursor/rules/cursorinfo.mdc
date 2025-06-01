@@ -1,0 +1,165 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Dojo Timeline Project Snapshot
+
+## Project Overview
+The Dojo Timeline project has been successfully bootstrapped as a React + TypeScript application using Vite. This is a comprehensive life management application featuring an interactive 5-year timeline (June 1, 2025 to June 1, 2030).
+
+## Current Implementation Status
+
+### ✅ Completed Features
+
+#### 1. Project Setup
+- **Framework**: Vite + React + TypeScript
+- **Package Manager**: pnpm
+- **Dependencies Installed**:
+  - `vis-timeline@7.7.4` - Core timeline visualization library
+  - `zustand@5.0.5` - State management
+  - `date-fns@4.1.0` - Date formatting utilities
+  - `classnames@2.5.1` - CSS class utilities
+  - `tailwindcss@4.1.8` - CSS framework (configured)
+  - Testing: `vitest`, `@testing-library/react`, `@testing-library/jest-dom`
+
+#### 2. Core Architecture
+- **Types System** (`src/types.ts`):
+  - `PlanStatus` type: 'plan' | 'actual'
+  - `TimelineItem` interface with id, title, start/end dates, status, notes, subtasks
+  
+- **State Management** (`src/store.ts`):
+  - Zustand store with items array
+  - CRUD operations: upsert, remove
+  - localStorage persistence integration
+  - Sample data initialization
+  - Auto-save on state changes
+
+#### 3. UI Components
+
+**DojoTimeline Component** (`src/components/DojoTimeline.tsx`):
+- Wraps vis-timeline library
+- 5-year view (2025-2030)
+- Zoom capabilities (15 min to 5 years)
+- Editable timeline with drag/drop
+- Color-coded plan vs actual items
+- Keyboard shortcuts integration (Cmd+/- for zoom)
+- Double-click to add events
+- Tooltip support with formatted dates
+
+**EventModal Component** (`src/components/EventModal.tsx`):
+- Form for adding/editing timeline events
+- Fields: title, start date, end date, status, notes
+- Modal overlay with proper UX
+- Form validation and submission
+
+**App Component** (`src/App.tsx`):
+- Main application layout
+- Loads initial data on mount
+- Responsive design with Tailwind CSS
+- User instructions for keyboard shortcuts
+
+#### 4. Utilities & Helpers
+
+**Zoom Shortcuts** (`src/hooks/useZoom.ts`):
+- Keyboard shortcuts for timeline zoom
+- Cmd+= (zoom in), Cmd+- (zoom out)
+
+**Local Storage** (`src/lib/local.ts`):
+- Persistence utilities for timeline data
+- JSON serialization with Date object handling
+- Error handling for storage operations
+
+#### 5. Styling & Design
+- **CSS Framework**: Tailwind CSS configured
+- **Timeline Colors**: 
+  - Plan items: Blue (#3182ce)
+  - Actual items: Green (#38a169)
+- **Responsive Design**: Mobile-friendly layout
+- **Dark/Light Theme**: Base support in CSS
+
+#### 6. Type Declarations
+- Custom type definitions for vis-timeline (`src/vis-timeline.d.ts`)
+- Resolves TypeScript import issues
+
+### 🚧 Current Development Status
+
+#### Working Features:
+1. ✅ Timeline visualization with vis-timeline
+2. ✅ Add/Edit events via modal
+3. ✅ Plan vs Actual color coding
+4. ✅ Zoom and pan controls
+5. ✅ localStorage persistence
+6. ✅ Sample data loading
+7. ✅ Keyboard shortcuts
+8. ✅ Responsive design
+
+#### Known Issues:
+1. ⚠️ TypeScript linter warnings for React imports (functional but shows warnings)
+2. ⚠️ UUID peer dependency version mismatch (non-blocking)
+3. ⚠️ Some module resolution warnings in IDE (app runs correctly)
+
+### 📁 Project Structure
+```
+dojo-timeline/
+├── src/
+│   ├── components/
+│   │   ├── DojoTimeline.tsx     # Main timeline component
+│   │   └── EventModal.tsx       # Event creation/editing modal
+│   ├── hooks/
+│   │   └── useZoom.ts          # Zoom keyboard shortcuts
+│   ├── lib/
+│   │   └── local.ts            # localStorage utilities
+│   ├── types.ts                # TypeScript type definitions
+│   ├── store.ts                # Zustand state management
+│   ├── vis-timeline.d.ts       # Type declarations for vis-timeline
+│   ├── App.tsx                 # Main app component
+│   ├── index.css               # Global styles + Tailwind
+│   └── main.tsx                # App entry point
+├── tailwind.config.js          # Tailwind CSS configuration
+├── postcss.config.js           # PostCSS configuration
+├── package.json                # Dependencies and scripts
+└── vite.config.ts              # Vite configuration
+```
+
+### 🎯 Next Development Priorities
+
+#### Immediate (Phase 1):
+1. Fix TypeScript linter warnings
+2. Add event editing functionality (click to edit)
+3. Add event deletion (right-click context menu)
+4. Implement subtasks support
+
+#### Short-term (Phase 2):
+1. Plan vs Actual deviation visualization
+2. Progress tracking and analytics
+3. Export/import functionality
+4. Better mobile responsiveness
+
+#### Medium-term (Phase 3):
+1. AI assistant integration
+2. Habit tracking system
+3. Task management features
+4. Collaborative features
+
+### 🚀 Development Server
+- **Status**: Running on http://localhost:5173/
+- **Command**: `pnpm run dev`
+- **Hot Reload**: Enabled
+- **Build Command**: `pnpm run build`
+
+### 📊 Sample Data
+The application includes sample timeline items:
+1. "Learn React & TypeScript" (Jun-Aug 2025)
+2. "Complete Dojo Timeline Project" (July 2025)
+3. "Career Milestone: Senior Developer" (Jan 2026)
+
+### 🔧 Technical Notes
+- Uses vis-timeline standalone version for better bundle size
+- Implements proper cleanup in React useEffect
+- Date handling with date-fns for consistent formatting
+- Zustand provides lightweight state management
+- Tailwind CSS for rapid UI development
+- Vite for fast development and building
+
+This snapshot represents a fully functional MVP of the Dojo Timeline application with core features implemented and ready for further development.

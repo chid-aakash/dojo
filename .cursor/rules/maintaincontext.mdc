@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+there is a file called cursorinfo.mdc within .cursor/rules which contains the latest Snapshot of the project.
+
+it is imperativive that whatever new changes, old changes that doesnt reflect with the current cursorinfo.mdc is updated. 
+
+Do not use cursorinfo.mdc as a change log only make changes if you find the actual practical structure or features or implementation of the code differs from what it what is represented within cursorinfo.mdc, your goal is to try to reality with what is presented as reality within cursorinfo.mdc
+
+So while changing code or while coming across court that does not match with cursorinfo.mdc, it is your responsibility to change cursorinfo.mdc to match whatever is incongruent
