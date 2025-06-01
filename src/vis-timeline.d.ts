@@ -9,6 +9,7 @@ declare module 'vis-timeline/standalone' {
     moveTo(time: Date): void;
     getWindow(): { start: Date; end: Date };
     setWindow(start: Date, end: Date): void;
+    setOptions(options: any): void;
   }
   
   export class DataSet {

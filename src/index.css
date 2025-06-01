@@ -66,6 +66,7 @@ button:focus-visible {
 .vis-timeline {
   background-color: #111111 !important;
   border-color: #333333 !important;
+  font-family: inherit;
 }
 
 .vis-panel {
@@ -107,4 +108,94 @@ button:focus-visible {
 
 .vis-current-time {
   background-color: #ff0000 !important;
+}
+
+/* Timeline Timeline Enhancements */
+.vis-timeline {
+  font-family: inherit;
+}
+
+/* Enhanced visibility for week labels (Level 3) */
+.vis-timeline .vis-time-axis .vis-text.vis-minor {
+  font-weight: 600;
+  padding: 4px 8px;
+}
+
+/* Add visual separation for week boundaries in Level 4 */
+.vis-timeline .vis-time-axis .vis-text.vis-major {
+  background-color: #1a1a1a;
+  color: #3182ce;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 2px;
+}
+
+/* Enhanced week grid lines */
+.vis-timeline .vis-grid.vis-vertical.vis-week,
+.vis-timeline .vis-grid.vis-vertical.vis-major {
+  border-left: 2px solid #3182ce;
+  opacity: 0.6;
+}
+
+/* Better visibility for minor grid lines */
+.vis-timeline .vis-grid.vis-vertical.vis-minor {
+  border-left: 1px solid #333333;
+  opacity: 0.5;
+}
+
+/* Enhanced styling for week boundaries in Level 4 */
+.vis-timeline .vis-time-axis .vis-text.vis-major {
+  background-color: #1f2937;
+  color: #60a5fa;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-top: 4px;
+  border: 1px solid #3730a3;
+  font-size: 0.75rem;
+}
+
+/* Week number styling in Level 3 */
+.vis-timeline .vis-time-axis .vis-text.vis-week {
+  position: relative;
+  background-color: #1f2937;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #374151;
+  font-size: 0.875rem;
+  color: #e5e7eb;
+}
+
+/* Stronger visual separation for week boundaries */
+.vis-timeline .vis-grid.vis-vertical[style*="Monday"],
+.vis-timeline .vis-grid.vis-vertical.vis-week {
+  border-left: 3px solid #3b82f6 !important;
+  opacity: 0.8 !important;
+}
+
+/* Enhanced day labels in Level 4 */
+.vis-timeline .vis-time-axis .vis-text.vis-minor {
+  font-weight: 600;
+  padding: 4px 8px;
+  color: #f3f4f6;
+}
+
+/* Improved tooltip styling for week information */
+.vis-timeline .vis-time-axis .vis-text.vis-week::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: #9ca3af;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.vis-timeline .vis-time-axis .vis-text.vis-week:hover::after {
+  opacity: 1;
 }
