@@ -56,8 +56,8 @@ export default function DojoTimeline() {
         overrideItems: false 
       },
       
-      // Zoom limits
-      zoomMin: 1000 * 60 * 15,                    // 15 minutes minimum
+      // Zoom limits - 15 minutes minimum, 6 years maximum
+      zoomMin: 1000 * 60 * 15,                    // 15 minutes minimum (strictly enforced)
       zoomMax: 1000 * 60 * 60 * 24 * 365 * 6,    // 6 years maximum
       
       // Timeline behavior
@@ -104,7 +104,7 @@ export default function DojoTimeline() {
     // Store timeline reference
     timelineRef.current = timeline;
 
-    // Custom mouse wheel handling for better control
+    // Custom mouse wheel handling with better trackpad support
     container.current.addEventListener('wheel', (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -112,28 +112,57 @@ export default function DojoTimeline() {
       const deltaX = event.deltaX;
       const deltaY = event.deltaY;
       
-      // Determine if this is primarily horizontal or vertical movement
-      const isHorizontalScroll = Math.abs(deltaX) > Math.abs(deltaY);
+      // More strict detection for trackpad gestures
+      // If deltaX is much larger than deltaY, it's definitely horizontal
+      // If deltaY is much larger than deltaX, it's definitely vertical
+      const horizontalThreshold = 3; // deltaX must be 3x larger than deltaY
+      const isDefinitelyHorizontal = Math.abs(deltaX) > Math.abs(deltaY) * horizontalThreshold;
+      const isDefinitelyVertical = Math.abs(deltaY) > Math.abs(deltaX) * horizontalThreshold;
       
-      if (isHorizontalScroll) {
+      if (isDefinitelyHorizontal && !isDefinitelyVertical) {
         // Horizontal scrolling - pan left/right
         const range = timeline.getWindow();
         const interval = range.end.getTime() - range.start.getTime();
-        const moveBy = interval * (deltaX > 0 ? 0.1 : -0.1);
+        const moveBy = interval * (deltaX > 0 ? 0.05 : -0.05); // Reduced sensitivity
         
         const newStart = new Date(range.start.getTime() + moveBy);
         const newEnd = new Date(range.end.getTime() + moveBy);
         
         timeline.setWindow(newStart, newEnd);
-      } else {
-        // Vertical scrolling - zoom in/out
-        const zoomFactor = 0.1;
+      } else if (isDefinitelyVertical && !isDefinitelyHorizontal) {
+        // Vertical scrolling - zoom in/out with reduced sensitivity
+        const currentRange = timeline.getWindow();
+        const currentInterval = currentRange.end.getTime() - currentRange.start.getTime();
+        
+        // Check if we're at minimum zoom (15 minutes)
+        const fifteenMinutes = 1000 * 60 * 15;
+        
         if (deltaY > 0) {
-          timeline.zoomOut(zoomFactor);
+          // Zoom out with reduced sensitivity
+          timeline.zoomOut(0.02); // Much reduced from 0.1
         } else {
-          timeline.zoomIn(zoomFactor);
+          // Zoom in - check if we're already at minimum
+          if (currentInterval > fifteenMinutes) {
+            timeline.zoomIn(0.02); // Much reduced from 0.1
+            
+            // Double-check after zoom to enforce 15-minute minimum
+            setTimeout(() => {
+              const newRange = timeline.getWindow();
+              const newInterval = newRange.end.getTime() - newRange.start.getTime();
+              if (newInterval < fifteenMinutes) {
+                // Force back to 15-minute minimum
+                const center = new Date((newRange.start.getTime() + newRange.end.getTime()) / 2);
+                const halfInterval = fifteenMinutes / 2;
+                timeline.setWindow(
+                  new Date(center.getTime() - halfInterval),
+                  new Date(center.getTime() + halfInterval)
+                );
+              }
+            }, 0);
+          }
         }
       }
+      // If it's neither definitely horizontal nor vertical, ignore the gesture
     }, { passive: false });
 
     attachZoomShortcuts(timeline);
