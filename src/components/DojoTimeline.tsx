@@ -96,36 +96,42 @@ export default function DojoTimeline() {
       // Orientation
       orientation: 'top',
       
-      // Mouse wheel behavior - horizontal scroll for panning, vertical for zooming
-      horizontalScroll: true,
-      verticalScroll: false,
-      zoomKey: 'altKey'  // Hold Alt for zoom, otherwise pan
+      // Mouse wheel behavior - disable built-in to use custom
+      horizontalScroll: false,
+      verticalScroll: false
     });
 
     // Store timeline reference
     timelineRef.current = timeline;
 
-    // Custom mouse wheel handling for better trackpad support
+    // Custom mouse wheel handling for better control
     container.current.addEventListener('wheel', (event) => {
       event.preventDefault();
+      event.stopPropagation();
       
-      // Horizontal scroll (shift+wheel or trackpad horizontal gesture)
-      if (event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
-        // Pan left/right
+      const deltaX = event.deltaX;
+      const deltaY = event.deltaY;
+      
+      // Determine if this is primarily horizontal or vertical movement
+      const isHorizontalScroll = Math.abs(deltaX) > Math.abs(deltaY);
+      
+      if (isHorizontalScroll) {
+        // Horizontal scrolling - pan left/right
         const range = timeline.getWindow();
         const interval = range.end.getTime() - range.start.getTime();
-        const moveBy = interval * (event.deltaX > 0 ? 0.1 : -0.1);
+        const moveBy = interval * (deltaX > 0 ? 0.1 : -0.1);
         
         const newStart = new Date(range.start.getTime() + moveBy);
         const newEnd = new Date(range.end.getTime() + moveBy);
         
         timeline.setWindow(newStart, newEnd);
       } else {
-        // Vertical scroll - zoom in/out
-        if (event.deltaY > 0) {
-          timeline.zoomOut(0.1);
+        // Vertical scrolling - zoom in/out
+        const zoomFactor = 0.1;
+        if (deltaY > 0) {
+          timeline.zoomOut(zoomFactor);
         } else {
-          timeline.zoomIn(0.1);
+          timeline.zoomIn(zoomFactor);
         }
       }
     }, { passive: false });
@@ -139,16 +145,21 @@ export default function DojoTimeline() {
   }, [items]);
 
   return (
-    <div className="w-full h-full relative">
-      {/* Go to Current Time Button */}
-      <button
-        onClick={goToCurrentTime}
-        className="absolute top-4 right-4 z-10 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg transition-colors"
-      >
-        Go to Now
-      </button>
+    <div className="w-full h-full flex flex-col">
+      {/* Go to Current Time Button - Outside timeline */}
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={goToCurrentTime}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg transition-colors"
+        >
+          Go to Now
+        </button>
+      </div>
       
-      <div ref={container} className="h-full w-full" />
+      {/* Timeline Container */}
+      <div className="flex-1">
+        <div ref={container} className="h-full w-full" />
+      </div>
     </div>
   );
 } 
