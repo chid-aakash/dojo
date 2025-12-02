@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  font-family: 'Fira Code', 'Courier New', monospace;
+  font-family: "Fira Code", "Courier New", monospace;
   line-height: 1.5;
   font-weight: 400;
 
@@ -21,11 +21,11 @@
 
 a {
   font-weight: 500;
-  color: #58a6ff; 
+  color: #58a6ff;
   text-decoration: inherit;
 }
 a:hover {
-  color: #3081f7; 
+  color: #3081f7;
 }
 
 body {
@@ -34,11 +34,11 @@ body {
   min-height: 100vh;
   background-color: #000000; /* Changed to full black */
   color: #e0e0e0; /* Match root default text */
-  font-family: 'Fira Code', 'Courier New', monospace; 
+  font-family: "Fira Code", "Courier New", monospace;
 }
 
 h1 {
-  font-size: 2.8em; 
+  font-size: 2.8em;
   line-height: 1.1;
   color: #00c2ff; /* Brighter, more vibrant blue for title */
   font-weight: bold;
@@ -48,21 +48,21 @@ button {
   border-radius: 4px; /* Sharper radius */
   border: 1px solid #444; /* Slightly lighter border for pure black */
   padding: 0.6em 1.2em;
-  font-size: 0.9em; 
+  font-size: 0.9em;
   font-weight: 500;
-  font-family: inherit; 
+  font-family: inherit;
   background-color: #1a1a1a; /* Darker button background */
-  color: #c9d1d9; 
+  color: #c9d1d9;
   cursor: pointer;
   transition: border-color 0.25s, background-color 0.25s;
 }
 button:hover {
-  border-color: #666; 
+  border-color: #666;
   background-color: #2a2a2a;
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto #58a6ff; 
+  outline: 4px auto #58a6ff;
   outline-offset: 1px;
 }
 
@@ -73,7 +73,12 @@ button:focus-visible {
 }
 
 .vis-item.plan {
-  background: rgba(56, 139, 253, 0.4); /* Slightly more transparent background */
+  background: rgba(
+    56,
+    139,
+    253,
+    0.4
+  ); /* Slightly more transparent background */
   border-color: #58a6ff;
   color: #ffffff; /* Bright white text for plan items */
 }
@@ -85,19 +90,19 @@ button:focus-visible {
 
 /* Additional item type styling for more color */
 .vis-item.milestone {
-  background-color: rgba(165, 55, 253, 0.5); 
+  background-color: rgba(165, 55, 253, 0.5);
   border-color: #a537fd;
   color: #f5e6ff; /* Lighter purple text */
 }
 
 .vis-item.task {
-  background-color: rgba(253, 186, 56, 0.5); 
+  background-color: rgba(253, 186, 56, 0.5);
   border-color: #fdba38;
   color: #fff5e1; /* Very light yellow/orange text */
 }
 
 .vis-item.reminder {
-  background-color: rgba(239, 68, 68, 0.5); 
+  background-color: rgba(239, 68, 68, 0.5);
   border-color: #ef4444;
   color: #ffe8e8; /* Very light red text */
 }
@@ -118,7 +123,7 @@ button:focus-visible {
 .vis-timeline {
   background-color: #080808 !important; /* Very dark grey, not pure black for slight depth */
   border: 1px solid #333 !important; /* Darker border */
-  font-family: 'Fira Code', 'Courier New', monospace !important;
+  font-family: "Fira Code", "Courier New", monospace !important;
 }
 
 .vis-panel {
@@ -130,23 +135,23 @@ button:focus-visible {
   background-color: #080808 !important;
   color: #b0b0b0 !important; /* Slightly dimmer labels */
   border-color: #333 !important;
-  font-family: 'Fira Code', 'Courier New', monospace !important;
+  font-family: "Fira Code", "Courier New", monospace !important;
 }
 
 .vis-time-axis {
   background-color: #080808 !important;
   border-color: #333 !important;
-  font-family: 'Fira Code', 'Courier New', monospace !important;
+  font-family: "Fira Code", "Courier New", monospace !important;
 }
 
 .vis-time-axis .vis-text {
   color: #b0b0b0 !important; /* Brighter axis text as previous #888 was too dim */
-  font-family: 'Fira Code', 'Courier New', monospace !important;
+  font-family: "Fira Code", "Courier New", monospace !important;
 }
 
 .vis-time-axis .vis-text.vis-major {
   color: #d0d0d0 !important; /* Even brighter for major ticks */
-  font-weight: 500; 
+  font-weight: 500;
 }
 
 .vis-time-axis .vis-text.vis-minor {
@@ -172,7 +177,7 @@ button:focus-visible {
   color: #c0c0c0; /* Brighter base text color for better visibility */
 }
 
-.vis-timeline .vis-time-axis .vis-text.vis-minor { 
+.vis-timeline .vis-time-axis .vis-text.vis-minor {
   font-weight: 500;
   padding: 2px 4px;
   font-size: 0.75rem; /* Slightly increased */
@@ -181,7 +186,7 @@ button:focus-visible {
 
 .vis-timeline .vis-time-axis .vis-text.vis-major {
   background-color: #111; /* Darker offset background */
-  color: #6CB6FF; /* Brighter blue for major labels */
+  color: #6cb6ff; /* Brighter blue for major labels */
   font-weight: 700;
   padding: 3px 7px; /* Increased padding */
   border-radius: 3px;
@@ -200,15 +205,14 @@ button:focus-visible {
   opacity: 0.7;
 }
 
-
 .vis-timeline .vis-time-axis .vis-text.vis-week {
   position: relative;
-  background-color: #1a1a1a; 
+  background-color: #1a1a1a;
   padding: 4px 8px;
   border-radius: 4px;
   border: 1px solid #333;
   font-size: 0.8rem;
-  color: #888; 
+  color: #888;
 }
 
 .vis-timeline .vis-grid.vis-vertical[style*="Monday"],
@@ -220,7 +224,7 @@ button:focus-visible {
 .vis-timeline .vis-time-axis .vis-text.vis-minor {
   font-weight: normal;
   padding: 2px 4px;
-  color: #888; 
+  color: #888;
   font-size: 0.7rem;
 }
 
@@ -231,12 +235,12 @@ button:focus-visible {
   left: 50%;
   transform: translateX(-50%);
   font-size: 0.7rem;
-  color: #888; 
+  color: #888;
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s;
-  background-color: #080808; 
+  background-color: #080808;
   padding: 2px 4px;
   border-radius: 3px;
   border: 1px solid #333;
@@ -246,8 +250,14 @@ button:focus-visible {
   opacity: 1;
 }
 
-.vis-text, .vis-item-content, .vis-item, .vis-label, .vis-labelset, .vis-legend, .vis-tooltip {
-    font-family: 'Fira Code', 'Courier New', monospace !important;
+.vis-text,
+.vis-item-content,
+.vis-item,
+.vis-label,
+.vis-labelset,
+.vis-legend,
+.vis-tooltip {
+  font-family: "Fira Code", "Courier New", monospace !important;
 }
 
 /* Scrollbars for pure black theme */
@@ -271,12 +281,22 @@ button:focus-visible {
 
 /* Animation for RetroGrid */
 @keyframes gridScroll {
-  0% { background-position: 0 0; }
-  100% { background-position: 60px 60px; }
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 60px 60px;
+  }
 }
 
 .animate-grid-scroll {
   animation: gridScroll 3s linear infinite;
+}
+
+/* Pause grid animation when modal is open to prevent GPU overload */
+body:has([data-modal-open="true"]) .animate-grid-scroll {
+  animation-play-state: paused;
+  opacity: 0.3; /* Also reduce opacity so browser doesn't composite as much */
 }
 
 /* Hide vis-timeline specific helper/title text if it becomes an issue */
@@ -287,8 +307,14 @@ button:focus-visible {
 
 /* Hide vis-timeline specific helper/title text */
 /* This targets the element that often shows zoom/pan hints or level information */
-.vis-timeline .vis-panel.vis-center > .vis-content > .vis-label.vis-nesting-group.vis-group-level-1,
-.vis-timeline .vis-panel.vis-center > .vis-content > div[title*="Use mouse wheel"],
+.vis-timeline
+  .vis-panel.vis-center
+  > .vis-content
+  > .vis-label.vis-nesting-group.vis-group-level-1,
+.vis-timeline
+  .vis-panel.vis-center
+  > .vis-content
+  > div[title*="Use mouse wheel"],
 .vis-timeline .vis-panel.vis-center > .vis-content > div[title*="Cmd+/-"] {
   display: none !important;
   visibility: hidden !important;
@@ -325,31 +351,31 @@ button:focus-visible {
   }
   .dark {
     /* Overriding for full black theme */
-    --background: 0 0% 0%;             /* HSL for black */
-    --foreground: 0 0% 80%;           /* Lighter gray text for contrast on black */
-    --card: 0 0% 5%;                 /* Very dark gray for cards, slightly off-black */
-    --card-foreground: 0 0% 80%;      /* Text on cards */
-    --popover: 0 0% 5%;              /* Very dark gray for popovers */
-    --popover-foreground: 0 0% 80%;   /* Text on popovers */
-    
-    --primary: 0 0% 80%;             /* Primary interactive elements text color */
-    --primary-foreground: 0 0% 0%;    /* Text on primary interactive elements (e.g., button text on primary button) */
-    
-    --secondary: 0 0% 10%;           /* Secondary elements background */
+    --background: 0 0% 0%; /* HSL for black */
+    --foreground: 0 0% 80%; /* Lighter gray text for contrast on black */
+    --card: 0 0% 5%; /* Very dark gray for cards, slightly off-black */
+    --card-foreground: 0 0% 80%; /* Text on cards */
+    --popover: 0 0% 5%; /* Very dark gray for popovers */
+    --popover-foreground: 0 0% 80%; /* Text on popovers */
+
+    --primary: 0 0% 80%; /* Primary interactive elements text color */
+    --primary-foreground: 0 0% 0%; /* Text on primary interactive elements (e.g., button text on primary button) */
+
+    --secondary: 0 0% 10%; /* Secondary elements background */
     --secondary-foreground: 0 0% 80%; /* Text for secondary elements */
-    
-    --muted: 0 0% 10%;              /* Muted elements background */
-    --muted-foreground: 0 0% 50%;     /* Muted text (dimmer) */
-    
-    --accent: 0 0% 15%;              /* Accent background (e.g., hover states) */
-    --accent-foreground: 0 0% 90%;    /* Accent text */
-    
-    --destructive: 0 70% 45%;         /* Destructive actions (e.g., delete button) - a dark red */
-    --destructive-foreground: 0 0% 90%;/* Text on destructive actions */
-    
-    --border: 0 0% 15%;              /* Borders - dark gray */
-    --input: 0 0% 10%;               /* Input fields background - very dark gray */
-    --ring: 0 70% 55%;                /* Focus ring - could be a brighter accent like a blue/orange */
+
+    --muted: 0 0% 10%; /* Muted elements background */
+    --muted-foreground: 0 0% 50%; /* Muted text (dimmer) */
+
+    --accent: 0 0% 15%; /* Accent background (e.g., hover states) */
+    --accent-foreground: 0 0% 90%; /* Accent text */
+
+    --destructive: 0 70% 45%; /* Destructive actions (e.g., delete button) - a dark red */
+    --destructive-foreground: 0 0% 90%; /* Text on destructive actions */
+
+    --border: 0 0% 15%; /* Borders - dark gray */
+    --input: 0 0% 10%; /* Input fields background - very dark gray */
+    --ring: 0 70% 55%; /* Focus ring - could be a brighter accent like a blue/orange */
 
     /* Chart colors can remain or be adjusted for dark theme */
     --chart-1: 220 70% 50%;
@@ -376,7 +402,7 @@ button:focus-visible {
   border: 1px solid #444 !important; /* Slightly lighter border for pure black */
   border-radius: 4px !important;
   padding: 0.5em 1em !important;
-  font-family: 'Fira Code', 'Courier New', monospace !important;
+  font-family: "Fira Code", "Courier New", monospace !important;
 }
 
 .vis-timeline .vis-navigation .vis-button.vis-go-to-now:hover {
@@ -387,36 +413,56 @@ button:focus-visible {
 /* Item styling for better visibility */
 .vis-item {
   border-color: #58a6ff; /* Blue border for all items */
-  background-color: #1A2A3A; /* Dark blueish background for items */
-  color: #E0E0E0; /* Bright text color for items */
+  background-color: #1a2a3a; /* Dark blueish background for items */
+  color: #e0e0e0; /* Bright text color for items */
   font-size: 0.9rem; /* Larger font size for item content */
   padding: 5px;
 }
 
 .vis-item.vis-selected {
-  border-color: #FFD700; /* Gold border for selected items */
-  background-color: #2A3A4A; /* Slightly lighter background for selected items */
+  border-color: #ffd700; /* Gold border for selected items */
+  background-color: #2a3a4a; /* Slightly lighter background for selected items */
 }
 
 .vis-item .vis-item-content {
   padding: 5px;
-  color: #6CB6FF !important; /* Changed to Codey Blue for better visibility as requested */
+  color: #6cb6ff !important; /* Changed to Codey Blue for better visibility as requested */
 }
 
 /* Specific status colors - make them more vibrant */
 .vis-item.plan {
-  background-color: #005A9C; /* Vibrant Blue for plan items */
-  border-color: #3B9CFF;
-  color: #FFFFFF; 
+  background-color: #005a9c; /* Vibrant Blue for plan items */
+  border-color: #3b9cff;
+  color: #ffffff;
 }
 
 .vis-item.actual {
-  background-color: #007A7A; /* Vibrant Teal for actual items */
-  border-color: #00FFFF;
-  color: #FFFFFF;
+  background-color: #007a7a; /* Vibrant Teal for actual items */
+  border-color: #00ffff;
+  color: #ffffff;
 }
 
 .vis-item.plan .vis-item-content,
 .vis-item.actual .vis-item-content {
-    color: #FFFFFF !important; /* White text for plan and actual items */
+  color: #ffffff !important; /* White text for plan and actual items */
+}
+
+/* Custom utility to hide scrollbars (used for Dear Diary textarea) */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Diary note icon item */
+.vis-item.diary {
+  background: transparent !important;
+  border: none !important;
+  color: #ff9ff3 !important; /* light pink */
+  font-size: 18px;
+}
+.vis-item.diary .vis-item-content {
+  padding: 0 !important;
 }

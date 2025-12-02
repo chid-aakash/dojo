@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 // import { ShineBorder } from '../ui/ShineBorder'; // Removed ShineBorder
-import { Terminal, TypingAnimation } from '../ui/Terminal'; // Added Terminal and TypingAnimation
-import { cn } from '../../lib/utils';
+import { Terminal, TypingAnimation } from "../ui/Terminal"; // Added Terminal and TypingAnimation
+import { cn } from "../../lib/utils";
+import { parseDateInput } from "../../utils/parseDateInput";
 
 interface GlobalSearchInputProps {
   onSearchSubmit: (searchTerm: string) => void;
@@ -11,32 +12,45 @@ interface GlobalSearchInputProps {
   // Add any other props you might need
 }
 
-const GlobalSearchInput: React.FC<GlobalSearchInputProps> = ({ onSearchSubmit, onDdCommand }) => {
+const GlobalSearchInput: React.FC<GlobalSearchInputProps> = ({
+  onSearchSubmit,
+  onDdCommand,
+}) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Global event listener for 'Enter' to show the search bar
   useEffect(() => {
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Enter' && !isVisible && !isInputFocused()) {
-        const activeElement = document.activeElement;
-        if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA' || (activeElement as HTMLElement).isContentEditable)) {
-          return; // Don't show if already in an input field
-        }
-        event.preventDefault(); // Prevent default Enter behavior (e.g., submitting a form)
+      // Skip if any modal is open (check for modal overlay)
+      if (document.querySelector('[data-modal-open="true"]')) {
+        console.log('[GlobalSearch] keyDown blocked by data-modal-open');
+        return;
+      }
+
+      const activeElement = document.activeElement;
+      // Skip if typing in any input/textarea
+      if (
+        activeElement &&
+        (activeElement.tagName === "INPUT" ||
+          activeElement.tagName === "TEXTAREA" ||
+          (activeElement as HTMLElement).isContentEditable)
+      ) {
+        console.log('[GlobalSearch] keyDown blocked by input/textarea focus');
+        return;
+      }
+
+      if (event.key === "Enter" && !isVisible) {
+        console.log('[GlobalSearch] PROCESSING Enter - opening search');
+        event.preventDefault();
         setIsVisible(true);
       }
     };
 
-    const isInputFocused = () => {
-      const activeElement = document.activeElement;
-      return activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA');
-    };
-
-    window.addEventListener('keydown', handleGlobalKeyDown);
+    window.addEventListener("keydown", handleGlobalKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleGlobalKeyDown);
+      window.removeEventListener("keydown", handleGlobalKeyDown);
     };
   }, [isVisible]);
 
@@ -47,24 +61,82 @@ const GlobalSearchInput: React.FC<GlobalSearchInputProps> = ({ onSearchSubmit, o
     }
   }, [isVisible]);
 
+  // Close on Escape even when input not focused
+  useEffect(() => {
+    if (!isVisible) return;
+    const escListener = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsVisible(false);
+        setSearchTerm("");
+      }
+    };
+    window.addEventListener("keydown", escListener);
+    return () => window.removeEventListener("keydown", escListener);
+  }, [isVisible]);
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
+  const handleKeyDown = async (
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (event.key === "Enter") {
       event.preventDefault();
       const trimmedSearchTerm = searchTerm.trim();
-      if (trimmedSearchTerm.toLowerCase() === 'dd') {
+      const lower = trimmedSearchTerm.toLowerCase();
+      if (lower === "dd") {
         onDdCommand();
-      } else if (trimmedSearchTerm) {
-        onSearchSubmit(trimmedSearchTerm);
+        setIsVisible(false);
+        setSearchTerm("");
+        return;
+      } else if (lower === "simulate dd") {
+        await fetch("/api/dd/simulate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        onSearchSubmit("reload");
+        setIsVisible(false);
+        setSearchTerm("");
+        return;
+      } else if (lower === "clear sim") {
+        await fetch("/api/dd/simulate", { method: "DELETE" });
+        onSearchSubmit("reload");
+        setIsVisible(false);
+        setSearchTerm("");
+        return;
+      } else if (lower === "help") {
+        window.dispatchEvent(new CustomEvent("dojo:help"));
+        setIsVisible(false);
+        setSearchTerm("");
+        return;
       }
-      setSearchTerm(''); // Clear after submit
-      setIsVisible(false); // Hide after submit
-    } else if (event.key === 'Escape') {
+
+      // Try to parse as date for quick navigation
+      const dateResult = parseDateInput(trimmedSearchTerm);
+      if (dateResult) {
+        window.dispatchEvent(
+          new CustomEvent("dojo:goto", {
+            detail: { date: dateResult.date, level: dateResult.level },
+          })
+        );
+        setIsVisible(false);
+        setSearchTerm("");
+        return;
+      }
+
+      if (trimmedSearchTerm) {
+        onSearchSubmit(trimmedSearchTerm);
+        setIsVisible(false);
+        setSearchTerm("");
+        return;
+      }
+      // default: hide
       setIsVisible(false);
-      setSearchTerm(''); // Clear on escape
+      setSearchTerm("");
+    } else if (event.key === "Escape") {
+      setIsVisible(false);
+      setSearchTerm(""); // Clear on escape
     }
   };
 
@@ -73,22 +145,29 @@ const GlobalSearchInput: React.FC<GlobalSearchInputProps> = ({ onSearchSubmit, o
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-end justify-center p-4 pointer-events-none" data-modal-open="true">
       <Terminal
         className={cn(
-          "w-full max-w-2xl mx-auto shadow-2xl !bg-slate-900/80 border-slate-700 !max-h-[120px]", // Custom terminal styling & reduced height
+          "w-full max-w-2xl mx-auto shadow-2xl !bg-slate-900/95 border-slate-700 !max-h-[120px] pointer-events-auto" // Custom terminal styling & reduced height
           // Add any other specific classes for the terminal container
         )}
       >
-        <div className="flex items-center px-1 py-1"> {/* Ensure this content fits the new height well */}
-          <TypingAnimation duration={30} className="text-green-400 !text-base sm:!text-lg mr-2">{'> '}</TypingAnimation>
+        <div className="flex items-center px-1 py-1">
+          {" "}
+          {/* Ensure this content fits the new height well */}
+          <TypingAnimation
+            duration={30}
+            className="text-green-400 !text-base sm:!text-lg mr-2"
+          >
+            {"> "}
+          </TypingAnimation>
           <input
             ref={inputRef}
             type="text"
             value={searchTerm}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder="Enter your command..." // Changed placeholder
+            placeholder="dd, help, or date (feb2025, 20feb25 5pm)..." // Date nav hint
             className={cn(
               "flex-grow bg-transparent text-slate-200 placeholder:text-slate-500 focus:outline-none caret-green-400",
               "font-mono text-base sm:text-lg", // Monospaced font, coder-like
@@ -102,4 +181,4 @@ const GlobalSearchInput: React.FC<GlobalSearchInputProps> = ({ onSearchSubmit, o
   );
 };
 
-export default GlobalSearchInput; 
+export default GlobalSearchInput;

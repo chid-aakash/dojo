@@ -1,10 +1,12 @@
-import { create } from 'zustand';
-import type { TimelineItem } from './types';
+import { create } from "zustand";
+import type { TimelineItem } from "./types";
 
 interface State {
   items: TimelineItem[];
   upsert: (item: TimelineItem) => void;
   remove: (id: string) => void;
+  addMany: (newItems: TimelineItem[]) => void;
+  clearSimulated: () => void;
 }
 
 // Sample data for demonstration
@@ -49,4 +51,8 @@ export const useTimeline = create<State>()((set) => ({
       items: [...s.items.filter((i) => i.id !== item.id), item],
     })),
   remove: (id) => set((s) => ({ items: s.items.filter((i) => i.id !== id) })),
-})); 
+  addMany: (newItems: TimelineItem[]) =>
+    set((s) => ({ items: [...s.items, ...newItems] })),
+  clearSimulated: () =>
+    set((s) => ({ items: s.items.filter((i) => !i.id.startsWith("sim-dd-")) })),
+}));
