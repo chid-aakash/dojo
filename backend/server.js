@@ -10,8 +10,8 @@ const PORT = process.env.PORT || 3001;
 app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json({ limit: "1mb" }));
 
-// Absolute directory for diary entries
-const DATA_DIR = "/Users/aakashchid/dojodata";
+// Data directory relative to project root
+const DATA_DIR = path.join(import.meta.dirname, "..", "dojodata");
 const DIARY_DIR = path.join(DATA_DIR, "dd");
 
 // Ensure directory exists
