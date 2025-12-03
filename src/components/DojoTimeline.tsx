@@ -35,6 +35,7 @@ export default function DojoTimeline({ onOpenDiary, disableShortcuts }: DojoTime
   // Use refs instead of state to prevent timeline recreation
   const currentZoomIndexRef = useRef(0);
   const isZoomInProgressRef = useRef(false);
+  const syncWithStoreRef = useRef<(() => void) | null>(null);
   const lastMousePositionRef = useRef<{
     x: number;
     timelineTime: number;
@@ -50,6 +51,13 @@ export default function DojoTimeline({ onOpenDiary, disableShortcuts }: DojoTime
   const [visibleTasks, setVisibleTasks] = useState<TaskItem[]>([]);
   const [edgeZone, setEdgeZone] = useState<'left' | 'right' | null>(null);
   const [edgeIntensity, setEdgeIntensity] = useState(0);
+  const [pressedButton, setPressedButton] = useState<string | null>(null);
+
+  // Flash button press feedback
+  const flashButton = (buttonId: string) => {
+    setPressedButton(buttonId);
+    setTimeout(() => setPressedButton(null), 100);
+  };
 
   const refreshVisibleTasks = () => {
     if (!timelineRef.current) return;
@@ -67,6 +75,31 @@ export default function DojoTimeline({ onOpenDiary, disableShortcuts }: DojoTime
     if (timelineRef.current) {
       const now = new Date();
       timelineRef.current.moveTo(now);
+    }
+  };
+
+  // Refresh diary entries from API
+  const refreshFromApi = async () => {
+    try {
+      const res = await fetch("/api/dd");
+      if (!res.ok) return;
+      const json = await res.json();
+      const data: { id: string; timestamp: string; content: string }[] =
+        json.entries || json;
+
+      const upsert = useTimeline.getState().upsert;
+      data.forEach((note) => {
+        upsert({
+          id: `dd-${note.id}`,
+          title: "📔",
+          start: new Date(note.id),
+          status: "diary" as const,
+          notes: note.content,
+        });
+      });
+      console.log('[Timeline] Refreshed from API, entries:', data.length);
+    } catch {
+      console.log('[Timeline] Failed to refresh from API');
     }
   };
 
@@ -241,6 +274,11 @@ export default function DojoTimeline({ onOpenDiary, disableShortcuts }: DojoTime
       currentZoomIndexRef.current = targetIndex;
       setCurrentZoomIndex(targetIndex);
 
+      // Re-aggregate items for new zoom level
+      if (syncWithStoreRef.current) {
+        syncWithStoreRef.current();
+      }
+
       console.log(
         `Zoomed to Level ${targetIndex + 1}: ${ZOOM_LEVELS[targetIndex].name}`
       );
@@ -260,29 +298,22 @@ export default function DojoTimeline({ onOpenDiary, disableShortcuts }: DojoTime
     const result: TimelineItem[] = [];
     const diaryMap: Record<string, TimelineItem> = {};
 
-    const getKey = (date: Date) => {
+    const getKey = (date: Date, id: string) => {
       const y = date.getFullYear();
       const m = date.getMonth();
-      const d = date.getDate();
-      const h = date.getHours();
-      const min = date.getMinutes();
       switch (zoomIndex) {
         case 0: // years => one per year
           return `${y}`;
-        case 1: // months
+        case 1: // months => one per month
           return `${y}-${m}`;
-        case 2: // days
-          return `${y}-${m}-${d}`;
-        case 3: // hours
-          return `${y}-${m}-${d}-${h}`;
-        default: // 5-minute bins keep all
-          return `${y}-${m}-${d}-${h}-${min}`;
+        default: // days and below => show all (unique by id)
+          return id;
       }
     };
 
     all.forEach((item) => {
       if (item.status === "diary") {
-        const key = getKey(item.start);
+        const key = getKey(item.start, item.id);
         // keep the first diary in bucket
         if (!diaryMap[key]) diaryMap[key] = item;
       } else {
@@ -292,6 +323,7 @@ export default function DojoTimeline({ onOpenDiary, disableShortcuts }: DojoTime
 
     // include aggregated diaries
     Object.values(diaryMap).forEach((it) => result.push(it));
+    console.log('[Timeline] getAggregatedItems zoomIndex:', zoomIndex, 'input:', all.length, 'output:', result.length, 'diaries:', Object.keys(diaryMap).length);
     return result;
   }
 
@@ -309,7 +341,10 @@ export default function DojoTimeline({ onOpenDiary, disableShortcuts }: DojoTime
       
       if (!mounted || !container.current) return;
 
-      itemsRef.current = items;
+      // Use latest items from store (not stale closure value)
+      // The update effect keeps itemsRef.current in sync
+      const latestItems = useTimeline.getState().items;
+      itemsRef.current = latestItems;
 
       // Map our TimelineItem[] → vis-timeline's DataSet format
       const ds = new DataSet(
@@ -375,6 +410,35 @@ export default function DojoTimeline({ onOpenDiary, disableShortcuts }: DojoTime
       // Store timeline reference
       timelineRef.current = timeline;
       setIsTimelineReady(true);
+
+      // Function to sync timeline with store
+      const syncWithStore = () => {
+        if (!timeline || !mounted) return;
+        const currentItems = useTimeline.getState().items;
+        itemsRef.current = currentItems;
+        const updatedDs = new DataSet(
+          getAggregatedItems(currentZoomIndexRef.current).map((e) => ({
+            id: e.id,
+            content: e.title,
+            start: e.start,
+            end: e.end,
+            className: e.status,
+            title: `<b>${e.title}</b><br/>${format(e.start, "PPP p")}${e.end ? " – " + format(e.end, "PPP p") : ""}`,
+          }))
+        );
+        timeline.setItems(updatedDs);
+        console.log('[Timeline] Synced with store, items:', currentItems.length);
+      };
+
+      // Store sync function in ref so zoomToLevel can call it
+      syncWithStoreRef.current = syncWithStore;
+
+      // Subscribe to store changes
+      const unsubscribe = useTimeline.subscribe(syncWithStore);
+      (timeline as any).__unsubscribeStore = unsubscribe;
+
+      // Also sync immediately in case items were already loaded
+      syncWithStore();
 
       // Initial task filtering
       refreshVisibleTasks();
@@ -638,6 +702,10 @@ export default function DojoTimeline({ onOpenDiary, disableShortcuts }: DojoTime
       }
       if (edgePanCleanup) edgePanCleanup();
       if (timeline) {
+        // Cleanup store subscription
+        if ((timeline as any).__unsubscribeStore) {
+          (timeline as any).__unsubscribeStore();
+        }
         // Cleanup zoom shortcuts
         if ((timeline as any).__cleanupZoom) {
           (timeline as any).__cleanupZoom();
@@ -656,12 +724,19 @@ export default function DojoTimeline({ onOpenDiary, disableShortcuts }: DojoTime
 
   // Update timeline items when they change
   useEffect(() => {
-    if (!timelineRef.current || !isTimelineReady) return;
-    
+    // Always update itemsRef so it has latest data for when timeline is ready
+    itemsRef.current = items;
+
+    if (!timelineRef.current || !isTimelineReady) {
+      console.log('[Timeline] Items changed but timeline not ready yet. Count:', items.length);
+      return;
+    }
+
+    console.log('[Timeline] Items changed, updating. Count:', items.length, items.filter(i => i.status === 'diary').length, 'diaries');
+
     const updateTimelineItems = async () => {
       const { DataSet } = await timelinePromise;
-      
-      itemsRef.current = items;
+
       const ds = new DataSet(
         getAggregatedItems(currentZoomIndexRef.current).map((e) => ({
           id: e.id,
@@ -676,10 +751,10 @@ export default function DojoTimeline({ onOpenDiary, disableShortcuts }: DojoTime
           `,
         }))
       );
-      
+
       timelineRef.current.setItems(ds);
     };
-    
+
     updateTimelineItems();
   }, [items, isTimelineReady]);
 
@@ -710,11 +785,9 @@ export default function DojoTimeline({ onOpenDiary, disableShortcuts }: DojoTime
     if (disableShortcuts) {
       // Hide current time indicator to stop its internal timer
       timelineRef.current.setOptions({ showCurrentTime: false });
-      console.log('[Timeline] paused - modal open');
     } else {
       // Resume current time indicator
       timelineRef.current.setOptions({ showCurrentTime: true });
-      console.log('[Timeline] resumed - modal closed');
     }
   }, [disableShortcuts]);
 
@@ -722,53 +795,52 @@ export default function DojoTimeline({ onOpenDiary, disableShortcuts }: DojoTime
   useEffect(() => {
     if (!timelineRef.current) return;
     timelineRef.current.setOptions({ moveable: !zoomLocked });
-    console.log('[Timeline] moveable:', !zoomLocked);
   }, [zoomLocked]);
 
   // Keyboard shortcuts for zoom levels (1-5) and now (n)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Disable all shortcuts when modal is open
-      if (disableShortcuts) {
-        console.log('[Timeline] keyDown blocked by disableShortcuts prop');
-        return;
-      }
+      if (disableShortcuts) return;
 
       // Also check for modal via data attribute (backup check)
-      if (document.querySelector('[data-modal-open="true"]')) {
-        console.log('[Timeline] keyDown blocked by data-modal-open');
-        return;
-      }
+      if (document.querySelector('[data-modal-open="true"]')) return;
 
-      // Ignore if user is typing in an input/textarea
-      const tag = (e.target as HTMLElement).tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA") {
-        console.log('[Timeline] keyDown blocked by input/textarea focus');
-        return;
-      }
-
-      console.log('[Timeline] keyDown PROCESSING:', e.key);
+      // Ignore if user is typing in an input/textarea or contenteditable
+      const target = e.target as HTMLElement;
+      const tag = target.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable) return;
 
       // 1-5 for zoom levels
       if (e.key >= "1" && e.key <= "5") {
         const level = parseInt(e.key) - 1;
         if (level < ZOOM_LEVELS.length) {
+          flashButton(`level-${level}`);
           zoomToLevel(level);
         }
       }
       // n for now
       if (e.key === "n" || e.key === "N") {
+        flashButton("now");
         goToCurrentTime();
+      }
+      // r for refresh
+      if (e.key === "r" || e.key === "R") {
+        flashButton("refresh");
+        refreshFromApi();
       }
       // +/= for zoom in, - for zoom out (within level)
       if (e.key === "=" || e.key === "+") {
+        flashButton("plus");
         zoomInLevel();
       }
       if (e.key === "-" || e.key === "_") {
+        flashButton("minus");
         zoomOutLevel();
       }
       // l for lock toggle
       if (e.key === "l" || e.key === "L") {
+        flashButton("lock");
         toggleZoomLock();
       }
       // Arrow keys for panning (left/right) and zooming (up/down)
@@ -784,9 +856,11 @@ export default function DojoTimeline({ onOpenDiary, disableShortcuts }: DojoTime
       }
       // Up arrow = zoom in, Down arrow = zoom out
       if (e.key === "ArrowUp") {
+        flashButton("plus");
         zoomInLevel();
       }
       if (e.key === "ArrowDown") {
+        flashButton("minus");
         zoomOutLevel();
       }
     };
@@ -798,62 +872,85 @@ export default function DojoTimeline({ onOpenDiary, disableShortcuts }: DojoTime
   return (
     <div className="w-full h-full flex flex-col relative">
       {/* Controls Row */}
-      <div className="flex justify-between items-center mb-3 font-mono text-xs">
-        {/* Zoom Level Buttons + Label + Zoom In/Out */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center">
-            {ZOOM_LEVELS.map((level, index) => (
-              <button
-                key={level.level}
-                onClick={() => zoomToLevel(index)}
-                className={`w-5 h-5 flex items-center justify-center transition-colors ${
-                  currentZoomIndex === index
-                    ? "text-emerald-500"
-                    : "text-gray-600 hover:text-white"
-                }`}
-                title={level.name}
-              >
-                {currentZoomIndex === index ? `[${level.level}]` : level.level}
-              </button>
-            ))}
-          </div>
-          <span className="text-gray-600 w-16">
-            {ZOOM_LEVELS[currentZoomIndex].name}
-          </span>
-          <div className="flex items-center">
+      <div className="flex items-center gap-3 mb-3 font-mono text-xs">
+        {/* All buttons in one row */}
+        <div className="flex items-center">
+          {ZOOM_LEVELS.map((level, index) => (
             <button
-              onClick={zoomOutLevel}
-              className="w-5 h-5 flex items-center justify-center text-gray-600 hover:text-white transition-colors"
-              title="zoom out (-)"
-            >
-              -
-            </button>
-            <button
-              onClick={zoomInLevel}
-              className="w-5 h-5 flex items-center justify-center text-gray-600 hover:text-white transition-colors"
-              title="zoom in (+)"
-            >
-              +
-            </button>
-            <button
-              onClick={toggleZoomLock}
-              className={`w-5 h-5 flex items-center justify-center transition-colors ${
-                zoomLocked ? "text-emerald-500" : "text-gray-600 hover:text-white"
+              key={level.level}
+              onClick={() => { flashButton(`level-${index}`); zoomToLevel(index); }}
+              className={`w-5 h-5 flex items-center justify-center transition-all duration-75 ${
+                pressedButton === `level-${index}`
+                  ? "text-white scale-110"
+                  : currentZoomIndex === index
+                  ? "text-emerald-500"
+                  : "text-gray-600 hover:text-white active:text-white active:scale-110"
               }`}
-              title="lock zoom to level (l)"
+              title={level.name}
             >
-              {zoomLocked ? "[*]" : "*"}
+              {currentZoomIndex === index || pressedButton === `level-${index}` ? `[${level.level}]` : level.level}
             </button>
-          </div>
+          ))}
+          <button
+            onClick={() => { flashButton("minus"); zoomOutLevel(); }}
+            className={`w-5 h-5 flex items-center justify-center transition-all duration-75 ${
+              pressedButton === "minus"
+                ? "text-white scale-110"
+                : "text-gray-600 hover:text-white active:text-white active:scale-110"
+            }`}
+            title="zoom out (-)"
+          >
+            {pressedButton === "minus" ? "[-]" : "-"}
+          </button>
+          <button
+            onClick={() => { flashButton("plus"); zoomInLevel(); }}
+            className={`w-5 h-5 flex items-center justify-center transition-all duration-75 ${
+              pressedButton === "plus"
+                ? "text-white scale-110"
+                : "text-gray-600 hover:text-white active:text-white active:scale-110"
+            }`}
+            title="zoom in (+)"
+          >
+            {pressedButton === "plus" ? "[+]" : "+"}
+          </button>
+          <button
+            onClick={() => { flashButton("lock"); toggleZoomLock(); }}
+            className={`w-5 h-5 flex items-center justify-center transition-all duration-75 ${
+              pressedButton === "lock"
+                ? "text-white scale-110"
+                : zoomLocked ? "text-emerald-500" : "text-gray-600 hover:text-white active:text-white active:scale-110"
+            }`}
+            title="lock zoom to level (l)"
+          >
+            {zoomLocked || pressedButton === "lock" ? "[*]" : "*"}
+          </button>
+          <button
+            onClick={() => { flashButton("now"); goToCurrentTime(); }}
+            className={`w-5 h-5 flex items-center justify-center transition-all duration-75 ${
+              pressedButton === "now"
+                ? "text-emerald-500 scale-110"
+                : "text-gray-600 hover:text-emerald-500 active:text-emerald-500 active:scale-110"
+            }`}
+            title="go to now (n)"
+          >
+            {pressedButton === "now" ? "[@]" : "@"}
+          </button>
+          <button
+            onClick={() => { flashButton("refresh"); refreshFromApi(); }}
+            className={`w-5 h-5 flex items-center justify-center transition-all duration-75 ${
+              pressedButton === "refresh"
+                ? "text-emerald-500 scale-110"
+                : "text-gray-600 hover:text-emerald-500 active:text-emerald-500 active:scale-110"
+            }`}
+            title="refresh from API (r)"
+          >
+            {pressedButton === "refresh" ? "[r]" : "r"}
+          </button>
         </div>
-
-        {/* Go to Current Time */}
-        <button
-          onClick={goToCurrentTime}
-          className="text-gray-600 hover:text-emerald-500 transition-colors"
-        >
-          <span className="text-gray-700">$</span> now
-        </button>
+        {/* Level label */}
+        <span className="text-gray-600">
+          {ZOOM_LEVELS[currentZoomIndex].name}
+        </span>
       </div>
 
       {/* Timeline Container */}

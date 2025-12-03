@@ -4,13 +4,32 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "dojo": "./scripts/dojo.sh",
     "dev": "vite",
+    "dev:ai": "./scripts/start-with-search.sh",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server": "node backend/server.js"
+    "server": "node backend/server.js",
+    "search:start": "docker start searxng || docker run -d --name searxng -p 8080:8080 -v ./scripts/searxng/settings.yml:/etc/searxng/settings.yml:ro --restart unless-stopped searxng/searxng",
+    "search:stop": "docker stop searxng"
   },
   "dependencies": {
+    "@huggingface/transformers": "^3.8.1",
+    "@lmstudio/sdk": "^1.5.0",
+    "@tiptap/core": "^2.27.1",
+    "@tiptap/extension-bullet-list": "^2.27.1",
+    "@tiptap/extension-heading": "^2.27.1",
+    "@tiptap/extension-history": "^2.27.1",
+    "@tiptap/extension-list-item": "^2.27.1",
+    "@tiptap/extension-ordered-list": "^2.27.1",
+    "@tiptap/extension-placeholder": "^2.27.1",
+    "@tiptap/extension-task-item": "^2.27.1",
+    "@tiptap/extension-task-list": "^2.27.1",
+    "@tiptap/react": "^2.27.1",
+    "@tiptap/starter-kit": "^2.27.1",
+    "@tiptap/suggestion": "^2.27.1",
+    "chromadb": "^3.1.6",
     "class-variance-authority": "^0.7.1",
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
@@ -25,6 +44,7 @@
     "tailwind-merge": "^3.3.0",
     "tailwindcss-animate": "^1.0.7",
     "vis-timeline": "^7.7.4",
+    "zod": "^4.1.13",
     "zustand": "^5.0.5"
   },
   "devDependencies": {

@@ -3,8 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { cn } from "../../lib/utils";
 import { useTimeline } from "../../store";
-import { useTasks } from "../../storeTasks";
-import { extractTasksFromDiary } from "../../utils/extractTasksFromDiary";
+import DiaryRichTextEditor from "./DiaryRichTextEditor";
 
 
 interface DiaryEntry {
@@ -24,8 +23,8 @@ const DearDiaryModal: React.FC<DearDiaryModalProps> = ({
   onClose,
   initialEntryId,
 }) => {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const contentRef = useRef(""); // Use ref instead of state to avoid re-renders
+  const contentRef = useRef(""); // HTML content
+  const plainRef = useRef(""); // Plain text content for metrics/extraction
   const [diaryNotes, setDiaryNotes] = useState<DiaryEntry[]>([]);
   const [editingNote, setEditingNote] = useState<DiaryEntry | null>(null);
   const [showEntries, setShowEntries] = useState(false);
@@ -43,25 +42,22 @@ const DearDiaryModal: React.FC<DearDiaryModalProps> = ({
   const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const updateMetrics = () => {
-    const text = contentRef.current;
-    const lines = text.split("\n").length;
+  const updateMetrics = (textOverride?: string) => {
+    const text = textOverride ?? plainRef.current;
+    const lines = text.length ? text.split(/\r?\n/).length : 1;
     const words = text.trim() ? text.trim().split(/\s+/).length : 0;
     const chars = text.length;
+    setMetrics((prev) => ({ ...prev, lines, words, chars }));
+  };
 
-    // Get cursor position
-    const textarea = textareaRef.current;
-    let cursorLine = 1;
-    let cursorCol = 1;
-    if (textarea) {
-      const pos = textarea.selectionStart;
-      const textBeforeCursor = text.substring(0, pos);
-      cursorLine = textBeforeCursor.split("\n").length;
-      const lastNewline = textBeforeCursor.lastIndexOf("\n");
-      cursorCol = pos - lastNewline;
-    }
+  const setCursor = (line: number, col: number) => {
+    setMetrics((prev) => ({ ...prev, cursor: { line, col } }));
+  };
 
-    setMetrics({ lines, words, chars, cursor: { line: cursorLine, col: cursorCol } });
+  const stripHtml = (html: string) => {
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    return div.textContent || div.innerText || "";
   };
 
   // Load notes from backend whenever modal opens
@@ -80,15 +76,17 @@ const DearDiaryModal: React.FC<DearDiaryModalProps> = ({
           const note = entries.find((n: DiaryEntry) => n.id === initialEntryId);
           if (note) {
             setEditingNote(note);
-            contentRef.current = note.content;
-            if (textareaRef.current) textareaRef.current.value = note.content;
+            contentRef.current = note.content; // stored as string (html or text)
+            plainRef.current = stripHtml(note.content);
+            updateMetrics(plainRef.current);
           }
         } else if (entries.length > 0) {
           // Default: open the latest (most recent) entry
           const latest = entries[0];
           setEditingNote(latest);
           contentRef.current = latest.content;
-          if (textareaRef.current) textareaRef.current.value = latest.content;
+          plainRef.current = stripHtml(latest.content);
+          updateMetrics(plainRef.current);
         }
 
         // Sync with timeline store (only loaded entries)
@@ -108,10 +106,10 @@ const DearDiaryModal: React.FC<DearDiaryModalProps> = ({
     };
 
     fetchNotes();
-    textareaRef.current?.focus();
     if (!editingNote) {
       contentRef.current = "";
-      if (textareaRef.current) textareaRef.current.value = "";
+      plainRef.current = "";
+      updateMetrics("");
     }
   }, [isVisible]);
 
@@ -133,17 +131,6 @@ const DearDiaryModal: React.FC<DearDiaryModalProps> = ({
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // DEBUG: Log all key events with modifiers
-      if (event.metaKey || event.ctrlKey) {
-        console.log('[DD KeyDown]', {
-          key: event.key,
-          keyCode: event.keyCode,
-          code: event.code,
-          metaKey: event.metaKey,
-          ctrlKey: event.ctrlKey,
-        });
-      }
-
       if (event.key === "Escape") {
         onClose();
       }
@@ -154,7 +141,6 @@ const DearDiaryModal: React.FC<DearDiaryModalProps> = ({
       }
       // Cmd+Return for new entry
       if ((event.metaKey || event.ctrlKey) && (event.key === "Enter" || event.code === "Enter" || event.keyCode === 13)) {
-        console.log('[DD] Cmd+Enter detected! Creating new entry...');
         event.preventDefault();
         event.stopPropagation();
         handleCreateNewEntry();
@@ -228,16 +214,6 @@ const DearDiaryModal: React.FC<DearDiaryModalProps> = ({
           notes: note.content,
         });
       });
-
-      // Task extraction (only for brand-new entries)
-      if (!editingNote) {
-        const diaryDate = new Date();
-        const content = contentRef.current;
-        const newTasks = await extractTasksFromDiary(content, diaryDate);
-        if (newTasks.length) {
-          useTasks.getState().bulkAdd(newTasks);
-        }
-      }
     } catch (err) {
       console.error(err);
     }
@@ -246,15 +222,15 @@ const DearDiaryModal: React.FC<DearDiaryModalProps> = ({
   const handlePreviousEntryClick = (note: DiaryEntry) => {
     setEditingNote(note);
     contentRef.current = note.content;
-    if (textareaRef.current) textareaRef.current.value = note.content;
-    textareaRef.current?.focus();
+    plainRef.current = stripHtml(note.content);
+    updateMetrics(plainRef.current);
   };
 
   const handleStartNewEntry = () => {
     setEditingNote(null);
     contentRef.current = "";
-    if (textareaRef.current) textareaRef.current.value = "";
-    textareaRef.current?.focus();
+    plainRef.current = "";
+    updateMetrics("");
     setAutoSaveStatus("idle");
   };
 
@@ -275,11 +251,9 @@ const DearDiaryModal: React.FC<DearDiaryModalProps> = ({
       // Switch to the new entry
       setEditingNote({ id: newEntry.id, timestamp: newEntry.timestamp, content: "" });
       contentRef.current = "";
-      if (textareaRef.current) textareaRef.current.value = "";
-      textareaRef.current?.focus();
+      plainRef.current = "";
+      updateMetrics("");
       setAutoSaveStatus("idle");
-
-      console.log('[DD] New entry created:', newEntry.id);
     } catch (err) {
       console.error("Failed to create new entry", err);
     }
@@ -292,8 +266,8 @@ const DearDiaryModal: React.FC<DearDiaryModalProps> = ({
       clearTimeout(autoSaveTimeoutRef.current);
     }
 
-    const content = contentRef.current.trim();
-    if (!content) {
+    const html = contentRef.current.trim();
+    if (!html) {
       setAutoSaveStatus("idle");
       return;
     }
@@ -306,17 +280,17 @@ const DearDiaryModal: React.FC<DearDiaryModalProps> = ({
           await fetch(`/api/dd/${editingNote.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ content }),
+            body: JSON.stringify({ content: html }),
           });
         } else {
           const res = await fetch("/api/dd", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ content }),
+            body: JSON.stringify({ content: html }),
           });
           const newEntry = await res.json();
           // Set as editing note so subsequent saves update instead of create
-          setEditingNote({ id: newEntry.id, timestamp: newEntry.timestamp, content });
+          setEditingNote({ id: newEntry.id, timestamp: newEntry.timestamp, content: html });
         }
         await reloadNotes();
         setAutoSaveStatus("saved");
@@ -364,7 +338,17 @@ const DearDiaryModal: React.FC<DearDiaryModalProps> = ({
 
   const formatTimestamp = (ts: string) => {
     const d = new Date(ts);
-    return d.toISOString().replace("T", " ").replace("Z", "");
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const day = days[d.getDay()];
+    const month = months[d.getMonth()];
+    const date = String(d.getDate()).padStart(2, "0");
+    const year = d.getFullYear();
+    const hour24 = d.getHours();
+    const hour12 = hour24 % 12 || 12;
+    const mins = String(d.getMinutes()).padStart(2, "0");
+    const ampm = hour24 < 12 ? "am" : "pm";
+    return `${day}, ${month} ${date} ${year} ${hour12}:${mins}${ampm}`;
   };
 
   const formatSidebarDate = (ts: string) => {
@@ -380,10 +364,13 @@ const DearDiaryModal: React.FC<DearDiaryModalProps> = ({
 
   const formatSidebarTime = (ts: string) => {
     const d = new Date(ts);
-    const hours = String(d.getHours()).padStart(2, "0");
+    const hour24 = d.getHours();
+    const hour12 = hour24 % 12 || 12;
     const mins = String(d.getMinutes()).padStart(2, "0");
     const secs = String(d.getSeconds()).padStart(2, "0");
-    return `${hours}:${mins}:${secs}`;
+    const ms = String(d.getMilliseconds()).padStart(3, "0");
+    const ampm = hour24 < 12 ? "am" : "pm";
+    return `${hour12}:${mins}:${secs}.${ms}${ampm}`;
   };
 
   return (
@@ -391,7 +378,6 @@ const DearDiaryModal: React.FC<DearDiaryModalProps> = ({
       className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/95 p-4 sm:p-8 md:p-12"
       data-modal-open="true"
       onKeyDown={(e) => e.stopPropagation()}
-      onClick={onClose}
     >
       {/* Main terminal window */}
       <div
@@ -402,7 +388,16 @@ const DearDiaryModal: React.FC<DearDiaryModalProps> = ({
         <div className="flex items-center justify-between px-4 h-12 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-red-500/80" />
+              <button
+                type="button"
+                aria-label="Close diary"
+                title="close (Esc)"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClose();
+                }}
+                className="w-3 h-3 rounded-full bg-red-500/80 hover:bg-red-500 cursor-pointer"
+              />
               <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
               <div className="w-3 h-3 rounded-full bg-green-500/80" />
             </div>
@@ -487,34 +482,23 @@ const DearDiaryModal: React.FC<DearDiaryModalProps> = ({
 
           {/* Editor */}
           <div className="flex-1 flex flex-col min-h-0">
-            {/* Textarea - darker background */}
+            {/* Rich text editor - darker background */}
             <div className="flex-1 min-h-0 bg-slate-950">
-              <textarea
-                ref={textareaRef}
-                defaultValue=""
-                onChange={(e) => {
-                  contentRef.current = e.target.value;
-                  updateMetrics();
+              <DiaryRichTextEditor
+                key={editingNote?.id || 'new-entry'}
+                initialContentHtml={contentRef.current}
+                placeholder={diaryNotes.length === 0 && !editingNote ? "cmd+enter to create new file..." : "start typing..."}
+                className="w-full h-full text-slate-200"
+                onChangeHtml={(html, text) => {
+                  contentRef.current = html;
+                  plainRef.current = text;
+                  updateMetrics(text);
                   triggerAutoSave();
                 }}
-                onKeyUp={updateMetrics}
-                onClick={updateMetrics}
-                onKeyDown={(e) => {
-                  // Allow shortcuts to bubble
-                  if ((e.metaKey || e.ctrlKey) && (["e", "d", "ArrowUp", "ArrowDown"].includes(e.key) || e.key === "Enter" || e.keyCode === 13)) {
-                    return;
-                  }
-                  e.stopPropagation();
+                onMetrics={(m) => {
+                  setMetrics((prev) => ({ ...prev, ...m }));
                 }}
-                placeholder={diaryNotes.length === 0 && !editingNote ? "cmd+enter to create new file..." : "start typing..."}
-                className="w-full h-full px-4 py-4 bg-transparent text-slate-200 placeholder:text-slate-600 focus:outline-none resize-none text-[15px] scrollbar-hide"
-                style={{
-                  fontFamily: "'Fira Code', 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace",
-                  lineHeight: "1.9",
-                  caretColor: "#4ade80",
-                  fontFeatureSettings: "'liga' 1, 'calt' 1",
-                }}
-                spellCheck={false}
+                onCursor={({ line, col }) => setCursor(line, col)}
               />
             </div>
 

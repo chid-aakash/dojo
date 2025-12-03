@@ -1,0 +1,65 @@
+use_default_settings: true
+
+server:
+  secret_key: "dojo-searxng-local-key-12345"
+  bind_address: "0.0.0.0"
+  port: 8080
+
+search:
+  formats:
+    - html
+    - json
+  # Default settings for API searches
+  default_lang: "en"
+  safe_search: 0
+  autocomplete: ""
+
+general:
+  instance_name: "Dojo Search"
+
+ui:
+  static_use_hash: true
+
+# Enable the best engines for current info
+engines:
+  # Startpage - Uses Google, highest priority (Google direct is blocked)
+  - name: startpage
+    disabled: false
+    weight: 3.0
+
+  # Google - often blocked but try anyway
+  - name: google
+    disabled: false
+    weight: 2.0
+
+  # Google News - for current events
+  - name: google news
+    disabled: false
+    weight: 2.0
+
+  # DuckDuckGo - decent backup
+  - name: duckduckgo
+    disabled: false
+    weight: 1.0
+
+  # DuckDuckGo News
+  - name: duckduckgo news
+    disabled: false
+    weight: 1.0
+
+  # Bing - DISABLED, returns garbage results
+  - name: bing
+    disabled: true
+
+  # Bing News - DISABLED
+  - name: bing news
+    disabled: true
+
+  # Brave - DISABLED
+  - name: brave
+    disabled: true
+
+enabled_plugins:
+  - 'Hash plugin'
+  - 'Search on category select'
+  - 'Tracker URL remover'

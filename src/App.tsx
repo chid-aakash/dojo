@@ -42,15 +42,6 @@ export default function App() {
 
   // Fetch diary entries once on mount to populate timeline
   useEffect(() => {
-    // Skip fetching in development if backend is not expected to be running
-    // This prevents console errors when the backend service is not available
-    const shouldFetch =
-      import.meta.env.PROD || import.meta.env.VITE_ENABLE_BACKEND;
-
-    if (!shouldFetch) {
-      return;
-    }
-
     let abortController = new AbortController();
     let isMounted = true;
 
@@ -63,13 +54,16 @@ export default function App() {
           return;
         }
 
+        const json = await res.json();
         const data: { id: string; timestamp: string; content: string }[] =
-          await res.json();
+          json.entries || json;
 
         if (!isMounted) return;
 
+        console.log('[App] Fetched diary entries:', data.length, data.map(n => n.id));
         const upsert = useTimeline.getState().upsert;
         data.forEach((note) => {
+          console.log('[App] Upserting diary:', note.id);
           upsert({
             id: `dd-${note.id}`,
             title: "📔",
@@ -78,11 +72,9 @@ export default function App() {
             notes: note.content,
           });
         });
-      } catch (err: any) {
+        console.log('[App] Store items after upsert:', useTimeline.getState().items.length);
+      } catch {
         // Silently handle errors - backend might not be running
-        if (err.name !== "AbortError" && isMounted) {
-          console.debug("Diary service not available");
-        }
       }
     };
 
@@ -118,6 +110,7 @@ export default function App() {
     "KEYBOARD SHORTCUTS",
     "  1-5             – zoom to level (Years/Months/Days/Hours/Minutes)",
     "  n               – go to now",
+    "  r               – refresh diary entries from API",
     "  +/-             – zoom in/out within level",
     "  l               – lock zoom to current level",
     "  Arrow keys      – pan timeline (left/right) or zoom (up/down)",

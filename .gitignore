@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Chroma vector database data
+dojodata/chroma/
+
+# Environment variables (never commit API keys)
+.env
+.env.local
+.env.*.local

@@ -7,28 +7,18 @@ import type { Timeline } from 'vis-timeline/standalone';
 export function attachZoomShortcuts(tl: Timeline, isDisabled?: () => boolean) {
   const handler = (e: KeyboardEvent) => {
     // Skip if disabled or modal is open
-    if (isDisabled?.()) {
-      console.log('[useZoom] blocked by isDisabled');
-      return;
-    }
-    if (document.querySelector('[data-modal-open="true"]')) {
-      console.log('[useZoom] blocked by data-modal-open');
-      return;
-    }
+    if (isDisabled?.()) return;
+    if (document.querySelector('[data-modal-open="true"]')) return;
 
-    // Skip if typing in input/textarea
-    const tag = (e.target as HTMLElement)?.tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA') {
-      console.log('[useZoom] blocked by input/textarea');
-      return;
-    }
+    // Skip if typing in input/textarea/contenteditable
+    const target = e.target as HTMLElement;
+    const tag = target?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || target?.isContentEditable) return;
 
     if (e.metaKey && e.key === '=') {
-      console.log('[useZoom] PROCESSING zoom in');
       tl.zoomIn(0.05);
     }
     if (e.metaKey && e.key === '-') {
-      console.log('[useZoom] PROCESSING zoom out');
       tl.zoomOut(0.05);
     }
   };
